@@ -1,6 +1,7 @@
 # Ensemble for text classification  
  
-Tensorflow implementation of [Learning Structured Text Representations](https://arxiv.org/abs/1705.09207)
+Tensorflow implementation of [Learning Structured Text Representations](https://arxiv.org/abs/1705.09207)  
+Based on the excellent work of https://github.com/nlpyang/structured
 
 **Requirements:**  
 
