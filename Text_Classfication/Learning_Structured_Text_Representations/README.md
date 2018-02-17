@@ -7,6 +7,7 @@ Based on the excellent work of https://github.com/nlpyang/structured
 
 * Python 3  
 * TensorFlow >= 1.4  
+* gensim
 
 
 **How to run:**  
