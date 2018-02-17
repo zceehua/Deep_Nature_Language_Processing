@@ -15,4 +15,4 @@ Tensorflow implementation of [Neural Architectures for Named Entity Recognition]
 
 **Result**
 Accuracy after 10 epoch without CRF on validation set: 0.948
-Accuracy after 10 epoch with CRF on validation set: 0.952
+Accuracy after 10 epoch with CRF on validation set: 0.952  
