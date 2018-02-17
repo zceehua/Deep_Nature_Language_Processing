@@ -1,5 +1,3 @@
-# Ensemble for text classification  
- 
 Tensorflow implementation of [Neural Architectures for Named Entity Recognition](https://arxiv.org/abs/1603.01360)
 
 **Requirements:**  
