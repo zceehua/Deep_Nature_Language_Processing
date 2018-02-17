@@ -250,6 +250,9 @@ class StructureModel(object):
                     print("val_acc: %.3f" %(acc/len(X_val)))
 
 
+    #def predict(self):
+    #    pass
+
     def gen_batch(self,X,y,batch_size):
         data={}
         data["label"],data["input"],data["doc_len"]=[],[],[]
