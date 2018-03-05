@@ -84,10 +84,8 @@ class StructureModel(object):
         mask1 = tf.concat([temp1, mask1], 2)  # [:, :, 0] = 0，[batch_l * max_doc_l, max_sent_l,max_sent_l]
         mask2 = tf.concat([temp2, mask2], 1)  # [:, 0, :] = 0
 
-        self.mask=mask2#ok
         self.w=self.input_embedding
         proot,pz=self.atten_score("sent",mask1,mask2)##(B*T,S,),(B*T,S,S)
-        self.proot=proot#not ok
         self.root_emb_sent=tf.tile(self.root_emb_sent,[args.batch_size*self.max_doc_len,1,1])
         mask_sent = tf.reshape(tf.sequence_mask(self.sent_len, self.max_sent_len), [-1, self.max_sent_len])
         mask_sent = tf.to_float(tf.expand_dims(mask_sent, [-1]))#(B*T,S,1)
@@ -95,7 +93,6 @@ class StructureModel(object):
         sent_r=self.get_atten_vec("sent",self.token_sem,proot,pz,self.root_emb_sent,mask_sent)
         #pay attention to that we can not reshape as [args.batch_size, self.max_doc_len, -1], error may occur
         sent_r = tf.reshape(sent_r, [-1, self.max_doc_len, 3*args.emb_sem])  # [batch_l ,max_doc_l,75*3]
-        self.sent_r=sent_r#not ok
         return sent_r
 
     #we could merge repeating code
@@ -157,9 +154,9 @@ class StructureModel(object):
 
         return r
 
-    def atten_score(self,name,mask1,mask2):#mask ok
+    def atten_score(self,name,mask1,mask2):
         with tf.variable_scope(name,reuse=True):
-            W_pc=tf.get_variable("w_pc")#ok
+            W_pc=tf.get_variable("w_pc")
             W_r = tf.get_variable("w_r")
 
         if name=="sent":
@@ -172,7 +169,7 @@ class StructureModel(object):
             max_len=self.max_doc_len
             print(name,input_embed)
 
-        tp=tf.layers.dense(tf.reshape(input_embed,[-1,2*args.emb_str]),2*args.emb_str,tf.nn.tanh)#not ok
+        tp=tf.layers.dense(tf.reshape(input_embed,[-1,2*args.emb_str]),2*args.emb_str,tf.nn.tanh)
         tc=tf.layers.dense(tf.reshape(input_embed,[-1,2*args.emb_str]),2*args.emb_str,tf.nn.tanh)
         tp=tf.reshape(tp,[-1,max_len,2*args.emb_str])#(B*T,S,2*50)
         tc=tf.reshape(tc,[-1,max_len,2*args.emb_str])
