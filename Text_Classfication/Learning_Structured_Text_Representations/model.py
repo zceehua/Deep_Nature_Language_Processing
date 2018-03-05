@@ -6,7 +6,7 @@ class StructureModel(object):
     def __init__(self,embedding=None,vocab_size=None):
         self.vocab_size = vocab_size
         self.embedding = embedding
-        with tf.variable_scope("Structure_Tree"):
+        with tf.variable_scope("Structure_Tree",initializer=tf.contrib.layers.xavier_initializer()):
             self.add_forward()
             self.add_backward()
         self.sess = tf.Session()
