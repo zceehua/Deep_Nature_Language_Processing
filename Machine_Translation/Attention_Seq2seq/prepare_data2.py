@@ -126,7 +126,7 @@ def Reader(file_name,pool_num,length):
 
 
 if __name__ == '__main__':
-    file_name = ["F:\\Machine_translation_dataset\\train\\train.en","F:\\Machine_translation_dataset\\train\\train.zh"]
+    file_name = ["./data/train.en","./data/train.zh"]
     g = open(file_name[0], 'r', encoding="utf-8")
     length=len(g.readlines())
     print(length)
