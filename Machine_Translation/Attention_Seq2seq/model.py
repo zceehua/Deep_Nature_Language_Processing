@@ -5,8 +5,8 @@ from prepare_data2 import preprocess
 import re
 import os
 class NMT(object):
-    def __init__(self,X_word2idx,X_idx2word,Y_word2idx,Y_idx2word,rnn_size=100,n_layers=2,grad_clip=5.0,
-                embedding_size=350,beam_width=5,force_teaching_ratio=0.5,learning_rate=0.0001,decay_size=1000,
+    def __init__(self,X_word2idx,X_idx2word,Y_word2idx,Y_idx2word,rnn_size=300,n_layers=2,grad_clip=5.0,
+                embedding_size=500,beam_width=5,force_teaching_ratio=0.5,learning_rate=0.0001,decay_size=1000,
                  decay_factor=0.99,moving_average_decay=0.99,save_path="./checkpoint/"):
         self.X_word2idx=X_word2idx
         self.Y_word2idx=Y_word2idx
