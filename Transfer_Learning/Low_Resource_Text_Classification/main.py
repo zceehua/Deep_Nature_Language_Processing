@@ -8,8 +8,8 @@ from tools import *
 from model.model import Model
 import numpy as np
 
-#bugs with tens
-#FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification"
+#mysterious bugs might occur with tensorflow if not adding full path
+FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/saved_model/"
 MODEL_PATH=args.model_path
 RESULT_path=args.result_path
 
@@ -25,7 +25,7 @@ def train(file_name,embedding):
     number_samples=file_name.split("_")[1][:-9]
     model = Model(logger, vocab_size,embedding=embedding)
     classifier = tf.estimator.Estimator(
-        model_fn=model.model_fn, model_dir=MODEL_PATH+"model_"+number_samples, config=config)
+        model_fn=model.model_fn, model_dir=FULL_PATH+"model_"+number_samples, config=config)
     for _ in range(args.n_epochs):
         classifier.train(lambda :recordLoader.train_input(file_name))
     logger.info("evaluating model on {} data samples....".format(number_samples))

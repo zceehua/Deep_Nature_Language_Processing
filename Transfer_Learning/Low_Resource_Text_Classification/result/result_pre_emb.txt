@@ -1,1 +1,0 @@
-Val_acc		Number_of_training_data
