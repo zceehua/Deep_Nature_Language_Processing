@@ -1,0 +1,18 @@
+2018-07-20 13:53:20,419 - main.py[line:49] - INFO: words index loaded
+2018-07-20 13:53:20,450 - tf_logging.py[line:82] - INFO: Using config: {'_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': 100, '_save_checkpoints_secs': 600, '_num_worker_replicas': 1, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x000001CEAE3784E0>, '_is_chief': True, '_save_summary_steps': 100, '_keep_checkpoint_max': 1, '_save_checkpoints_steps': None, '_tf_random_seed': None, '_service': None, '_task_type': 'worker', '_model_dir': './model/saved_model/model_1000', '_task_id': 0, '_master': '', '_session_config': None, '_num_ps_replicas': 0}
+2018-07-20 13:53:23,143 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:53:36,037 - tf_logging.py[line:82] - INFO: Saving checkpoints for 1 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:53:38,678 - tf_logging.py[line:82] - INFO: step = 1, loss = 1.3866786
+2018-07-20 13:53:38,678 - tf_logging.py[line:82] - INFO: lr = 0.0005, global_step = 1
+2018-07-20 13:53:42,548 - tf_logging.py[line:82] - INFO: Saving checkpoints for 20 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:53:44,662 - tf_logging.py[line:82] - INFO: Loss for final step: 1.3582106.
+2018-07-20 13:53:47,079 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:53:47,454 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-20
+2018-07-20 13:53:53,547 - tf_logging.py[line:82] - INFO: Saving checkpoints for 21 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:53:56,000 - tf_logging.py[line:82] - INFO: step = 21, loss = 1.2757534
+2018-07-20 13:53:56,000 - tf_logging.py[line:82] - INFO: lr = 0.00049948733, global_step = 21
+2018-07-20 13:53:59,662 - tf_logging.py[line:82] - INFO: Saving checkpoints for 40 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:54:02,020 - tf_logging.py[line:82] - INFO: Loss for final step: 1.354466.
+2018-07-20 13:54:02,020 - main.py[line:29] - INFO: evaluating model on 1000 data samples....
+2018-07-20 13:54:04,145 - tf_logging.py[line:82] - INFO: Starting evaluation at 2018-07-20-12:54:04
+2018-07-20 13:54:04,836 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-40

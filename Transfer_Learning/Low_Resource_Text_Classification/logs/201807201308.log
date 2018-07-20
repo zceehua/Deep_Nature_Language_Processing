@@ -1,0 +1,94 @@
+2018-07-20 13:08:34,061 - main.py[line:49] - INFO: words index loaded
+2018-07-20 13:08:34,062 - main.py[line:50] - INFO: load word embedding
+2018-07-20 13:08:58,627 - main.py[line:54] - INFO: embedding loaded
+2018-07-20 13:08:58,965 - tf_logging.py[line:82] - INFO: Using config: {'_keep_checkpoint_every_n_hours': 10000, '_num_worker_replicas': 1, '_log_step_count_steps': 100, '_model_dir': './model/saved_model/model_1000', '_master': '', '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x0000013D7F0047B8>, '_service': None, '_keep_checkpoint_max': 1, '_session_config': None, '_save_checkpoints_steps': None, '_num_ps_replicas': 0, '_save_checkpoints_secs': 600, '_tf_random_seed': None, '_task_type': 'worker', '_task_id': 0, '_is_chief': True, '_save_summary_steps': 100}
+2018-07-20 13:09:07,362 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:09:23,292 - tf_logging.py[line:82] - INFO: Saving checkpoints for 1 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:09:25,698 - tf_logging.py[line:82] - INFO: step = 1, loss = 1.3857255
+2018-07-20 13:09:25,698 - tf_logging.py[line:82] - INFO: lr = 0.0005, global_step = 1
+2018-07-20 13:09:38,769 - tf_logging.py[line:82] - INFO: Saving checkpoints for 100 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:09:41,810 - tf_logging.py[line:82] - INFO: Loss for final step: 1.5166022.
+2018-07-20 13:09:43,949 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:09:44,333 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-100
+2018-07-20 13:09:52,616 - tf_logging.py[line:82] - INFO: Saving checkpoints for 101 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:09:55,903 - tf_logging.py[line:82] - INFO: step = 101, loss = 1.204514
+2018-07-20 13:09:55,904 - tf_logging.py[line:82] - INFO: lr = 0.0004974419, global_step = 101
+2018-07-20 13:10:09,228 - tf_logging.py[line:82] - INFO: Saving checkpoints for 200 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:10:11,743 - tf_logging.py[line:82] - INFO: Loss for final step: 1.3591993.
+2018-07-20 13:10:14,149 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:10:14,846 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-200
+2018-07-20 13:10:22,031 - tf_logging.py[line:82] - INFO: Saving checkpoints for 201 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:10:24,504 - tf_logging.py[line:82] - INFO: step = 201, loss = 1.2046388
+2018-07-20 13:10:24,505 - tf_logging.py[line:82] - INFO: lr = 0.0004948969, global_step = 201
+2018-07-20 13:10:40,130 - tf_logging.py[line:82] - INFO: Saving checkpoints for 300 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:10:43,820 - tf_logging.py[line:82] - INFO: Loss for final step: 1.0311776.
+2018-07-20 13:10:46,585 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:10:47,052 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-300
+2018-07-20 13:10:54,585 - tf_logging.py[line:82] - INFO: Saving checkpoints for 301 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:10:58,432 - tf_logging.py[line:82] - INFO: step = 301, loss = 1.19535
+2018-07-20 13:10:58,433 - tf_logging.py[line:82] - INFO: lr = 0.0004923649, global_step = 301
+2018-07-20 13:11:12,388 - tf_logging.py[line:82] - INFO: Saving checkpoints for 400 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:11:15,509 - tf_logging.py[line:82] - INFO: Loss for final step: 0.98000807.
+2018-07-20 13:11:17,915 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:11:18,307 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-400
+2018-07-20 13:11:25,644 - tf_logging.py[line:82] - INFO: Saving checkpoints for 401 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:11:28,725 - tf_logging.py[line:82] - INFO: step = 401, loss = 1.2519071
+2018-07-20 13:11:28,726 - tf_logging.py[line:82] - INFO: lr = 0.0004898459, global_step = 401
+2018-07-20 13:11:42,026 - tf_logging.py[line:82] - INFO: Saving checkpoints for 500 into ./model/saved_model/model_1000\model.ckpt.
+2018-07-20 13:11:45,675 - tf_logging.py[line:82] - INFO: Loss for final step: 1.1556687.
+2018-07-20 13:11:45,675 - main.py[line:29] - INFO: evaluating model on 1000 data samples....
+2018-07-20 13:11:48,091 - tf_logging.py[line:82] - INFO: Starting evaluation at 2018-07-20-12:11:48
+2018-07-20 13:11:48,495 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_1000\model.ckpt-500
+2018-07-20 13:11:55,518 - tf_logging.py[line:82] - INFO: Finished evaluation at 2018-07-20-12:11:55
+2018-07-20 13:11:55,565 - tf_logging.py[line:82] - INFO: Saving dict for global step 500: accuracy = 0.55, confusion_matrix = [[77 11  2  0]
+ [40 88  7  0]
+ [17 44 11  0]
+ [ 2 15  6  0]], global_step = 500, loss = 1.1864629
+2018-07-20 13:11:59,253 - tf_logging.py[line:86] - WARNING: Skipping summary for confusion_matrix, must be a float, np.float32, np.int64, np.int32 or int.
+2018-07-20 13:11:59,331 - main.py[line:31] - INFO: Val set accuracy: 0.550
+
+2018-07-20 13:11:59,331 - tf_logging.py[line:82] - INFO: Using config: {'_keep_checkpoint_every_n_hours': 10000, '_num_worker_replicas': 1, '_log_step_count_steps': 100, '_model_dir': './model/saved_model/model_2000', '_master': '', '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x0000013D318B2E48>, '_service': None, '_keep_checkpoint_max': 1, '_session_config': None, '_save_checkpoints_steps': None, '_num_ps_replicas': 0, '_save_checkpoints_secs': 600, '_tf_random_seed': None, '_task_type': 'worker', '_task_id': 0, '_is_chief': True, '_save_summary_steps': 100}
+2018-07-20 13:12:01,628 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:12:12,729 - tf_logging.py[line:82] - INFO: Saving checkpoints for 1 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:12:15,963 - tf_logging.py[line:82] - INFO: step = 1, loss = 1.386912
+2018-07-20 13:12:15,963 - tf_logging.py[line:82] - INFO: lr = 0.0005, global_step = 1
+2018-07-20 13:12:31,129 - tf_logging.py[line:82] - INFO: global_step/sec: 6.58711
+2018-07-20 13:12:31,129 - tf_logging.py[line:82] - INFO: step = 101, loss = 1.1629788 (15.166 sec)
+2018-07-20 13:12:31,129 - tf_logging.py[line:82] - INFO: lr = 0.0004974419, global_step = 101 (15.166 sec)
+2018-07-20 13:12:47,848 - tf_logging.py[line:82] - INFO: Saving checkpoints for 200 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:12:51,540 - tf_logging.py[line:82] - INFO: Loss for final step: 1.3951402.
+2018-07-20 13:12:54,448 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:12:54,875 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_2000\model.ckpt-200
+2018-07-20 13:13:02,949 - tf_logging.py[line:82] - INFO: Saving checkpoints for 201 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:13:06,141 - tf_logging.py[line:82] - INFO: step = 201, loss = 1.1942221
+2018-07-20 13:13:06,141 - tf_logging.py[line:82] - INFO: lr = 0.0004948969, global_step = 201
+2018-07-20 13:13:22,198 - tf_logging.py[line:82] - INFO: global_step/sec: 6.22851
+2018-07-20 13:13:22,201 - tf_logging.py[line:82] - INFO: step = 301, loss = 1.3133696 (16.059 sec)
+2018-07-20 13:13:22,201 - tf_logging.py[line:82] - INFO: lr = 0.0004923649, global_step = 301 (16.059 sec)
+2018-07-20 13:13:36,831 - tf_logging.py[line:82] - INFO: Saving checkpoints for 400 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:13:39,355 - tf_logging.py[line:82] - INFO: Loss for final step: 1.282114.
+2018-07-20 13:13:42,189 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:13:42,819 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_2000\model.ckpt-400
+2018-07-20 13:13:50,232 - tf_logging.py[line:82] - INFO: Saving checkpoints for 401 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:13:52,829 - tf_logging.py[line:82] - INFO: step = 401, loss = 1.1368228
+2018-07-20 13:13:52,829 - tf_logging.py[line:82] - INFO: lr = 0.0004898459, global_step = 401
+2018-07-20 13:14:07,632 - tf_logging.py[line:82] - INFO: global_step/sec: 6.75544
+2018-07-20 13:14:07,679 - tf_logging.py[line:82] - INFO: step = 501, loss = 1.2871501 (14.850 sec)
+2018-07-20 13:14:07,679 - tf_logging.py[line:82] - INFO: lr = 0.0004873397, global_step = 501 (14.850 sec)
+2018-07-20 13:14:22,080 - tf_logging.py[line:82] - INFO: Saving checkpoints for 600 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:14:24,618 - tf_logging.py[line:82] - INFO: Loss for final step: 1.0978479.
+2018-07-20 13:14:26,967 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:14:27,632 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_2000\model.ckpt-600
+2018-07-20 13:14:35,080 - tf_logging.py[line:82] - INFO: Saving checkpoints for 601 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:14:37,648 - tf_logging.py[line:82] - INFO: step = 601, loss = 0.985935
+2018-07-20 13:14:37,648 - tf_logging.py[line:82] - INFO: lr = 0.0004848464, global_step = 601
+2018-07-20 13:14:52,235 - tf_logging.py[line:82] - INFO: global_step/sec: 6.85528
+2018-07-20 13:14:52,251 - tf_logging.py[line:82] - INFO: step = 701, loss = 1.1529168 (14.603 sec)
+2018-07-20 13:14:52,251 - tf_logging.py[line:82] - INFO: lr = 0.00048236584, global_step = 701 (14.603 sec)
+2018-07-20 13:15:06,732 - tf_logging.py[line:82] - INFO: Saving checkpoints for 800 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:15:09,237 - tf_logging.py[line:82] - INFO: Loss for final step: 1.1460652.
+2018-07-20 13:15:11,359 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-20 13:15:11,766 - tf_logging.py[line:82] - INFO: Restoring parameters from ./model/saved_model/model_2000\model.ckpt-800
+2018-07-20 13:15:18,855 - tf_logging.py[line:82] - INFO: Saving checkpoints for 801 into ./model/saved_model/model_2000\model.ckpt.
+2018-07-20 13:15:21,438 - tf_logging.py[line:82] - INFO: step = 801, loss = 0.96820366
+2018-07-20 13:15:21,438 - tf_logging.py[line:82] - INFO: lr = 0.00047989798, global_step = 801

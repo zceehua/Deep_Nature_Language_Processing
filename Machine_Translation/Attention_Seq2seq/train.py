@@ -111,10 +111,10 @@ if __name__ == '__main__':
     X_word2idx, X_idx2word, Y_word2idx, Y_idx2word = load_idx()
     en_val,de_val=load_val()
     model = NMT(X_word2idx=X_word2idx,X_idx2word=X_idx2word,Y_word2idx=Y_word2idx,Y_idx2word=Y_idx2word)
-    if args.mode=="train": #python train.py --mode train
+    if args.mode=="train": #python train_skip.py --mode train
         print("start training the model...")
         train()
-    elif args.mode=="test":#python train.py --mode test
+    elif args.mode=="test":#python train_skip.py --mode test
         print("start inferring....")
         en_val=load_val_large()
         with open("translation_result",'w') as f:
