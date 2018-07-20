@@ -121,9 +121,9 @@ def preprocess_dailymail(i,DATA_DIR,PARAMS):
     print("Total words:", len(words))
 
     if "word2idx" not in PARAMS:
-        _words = set(["<UNK>"]+words)
-        PARAMS['word2idx'] = {c: i for i, c in enumerate(_words)}
-        PARAMS['idx2word'] = {i: c for i, c in enumerate(_words)}
+        _words = list(set(words))
+        PARAMS['word2idx'] = {c: i for i, c in enumerate(["<PAD>","<UNK>"]+_words)}
+        PARAMS['idx2word'] = {i: c for i, c in enumerate(["<PAD>","<UNK>"]+_words)}
         PARAMS['vocab_size'] = len(PARAMS['idx2word'])
         print('Vocabulary size:', PARAMS['vocab_size'])
         with open("./embedding/dm_word2idx.pkl",'wb') as f1:

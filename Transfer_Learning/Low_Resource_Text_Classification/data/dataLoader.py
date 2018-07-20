@@ -180,10 +180,10 @@ class dmLoader(object):
     def gen_batch(self,index):
         window=args.batch_size*args.max_len
         for i in range(0,len(index)-window,25):
-            yield np.array(index[i:i+window]).reshape((-1,args.max_len)),\
-                  np.array(index[i+1:i+1+window]).reshape((-1,args.max_len))
+            yield np.array(index[i:i+window]).reshape(-1,args.max_len),\
+                  np.array(index[i+1:i+1+window]).reshape(-1,args.max_len)
 
-    @staticmethod
+
     def input_fn(self,index):
         dataset = tf.data.Dataset.from_generator(
             lambda: self.gen_batch(index),

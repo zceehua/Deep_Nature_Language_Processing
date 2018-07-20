@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--train_split', type=int, default=1000,help='train file split')
 parser.add_argument('--mode', type=str, default="transfer",help='allowing transfer learning')
-parser.add_argument('--pretrain', type=bool, default=True,help='pretraining the model by using LM')
+parser.add_argument('--pretrain', type=bool, default=False,help='pretraining the model by using LM')
 parser.add_argument('--split', type=int, default=0.9,help='test/train split ratio')
 parser.add_argument('--clf', type=str, default="clstm",help='Type of classifiers. Default: c-lstm. You have three choices: [cnn, lstm, clstm]')
 parser.add_argument('--data_path', type=str, default="./data/original_data/",help='original data')

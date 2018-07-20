@@ -1,7 +1,7 @@
 import tensorflow as tf
 from config import args
 from tools import eval_confusion_matrix
-
+import numpy as np
 _no_value = object()
 
 class Model(object):
@@ -45,16 +45,19 @@ class Model(object):
                     pool_out = tf.layers.max_pooling2d(inputs=conv_out, pool_size=[args.max_len - kernel_w + 1, 1],
                                                        strides=1)
                     pool_out=tf.squeeze(pool_out)
-                    output.append(conv_out)
+                    output.append(pool_out)
                 elif args.clf=="clstm":
                     conv_out=tf.squeeze(conv_out,[2])
                     conv_out=conv_out[:,:max_feat_len,:]
+
                     output.append(conv_out)
 
             if len(filter_sizes)>1:
                 cnn_out=tf.concat(output,-1)
             else:
                 cnn_out=output
+            pad = tf.zeros([args.batch_size,args.max_len-max_feat_len, len(filter_sizes)*args.num_filters])
+            cnn_out=tf.concat([cnn_out,pad],1)
         return cnn_out
 
     def lstm_module(self,input,reuse=False):
@@ -63,8 +66,8 @@ class Model(object):
             cells=[tf.nn.rnn_cell.DropoutWrapper(cell,output_keep_prob=args.dropout) for cell in cells]
             cells = tf.nn.rnn_cell.MultiRNNCell(cells)
             self.initial_state = cells.zero_state(args.batch_size, tf.float32)
-            _, state = tf.nn.dynamic_rnn(cells, input, self.seq_len, self.initial_state)
-        return state[-1].h
+            output, state = tf.nn.dynamic_rnn(cells, input, self.seq_len, self.initial_state)
+        return output,state[-1].h
 
     def forward(self,features,mode):
         answer,question=features["answer"],features["question"]
@@ -78,18 +81,16 @@ class Model(object):
             ans_emb=self.get_embedding(answer)
             ques_emb=self.get_embedding(question,reuse=True)
             lstm_input=tf.concat([ans_emb,ques_emb],-1)
-            hidden=self.lstm_module(lstm_input)
+            _,hidden=self.lstm_module(lstm_input)
         elif args.clf=="clstm":
-            if args.pretrain:
-                cnn_output = self.cnn_module(answer)
-            else:
-                cnn_ans = self.cnn_module(answer)
-                cnn_ques = self.cnn_module(question, reuse=True)
-                cnn_output = tf.concat([cnn_ans, cnn_ques], -1)
-            hidden=self.lstm_module(cnn_output)
+            cnn_ans = self.cnn_module(answer)
+            cnn_ques = self.cnn_module(question, reuse=True)
+            cnn_output = tf.concat([cnn_ans, cnn_ques], -1)
+            output,hidden=self.lstm_module(cnn_output)
         else:
             raise ValueError('clf should be one of [cnn, lstm, clstm]')
-        logits,predictions=self.softmax_module(hidden)
+
+        logits,predictions=self.softmax_module(output,hidden)
         return logits,predictions
 
     def model_fn(self,features,labels,mode):
@@ -99,24 +100,21 @@ class Model(object):
 
         loss, train_op = self.loss_module(logits, labels)
 
-        accuracy = tf.metrics.accuracy(labels=labels,
-                                       predictions=predictions,
-                                       name='acc_op')
-        confusion_matrix=eval_confusion_matrix(labels,predictions,args.num_class)
-
-        metrics = {'accuracy': accuracy,"confusion_matrix":confusion_matrix}
-        tf.summary.scalar('accuracy', accuracy[1])
-
-        if not args.pretrain:
-            exclude = ['pt_softmax/']
-            variables_to_restore = tf.contrib.slim.get_variables_to_restore(exclude=exclude)
-            tf.train.init_from_checkpoint(args.model_path,
-                                          {v.name.split(':')[0]: v for v in variables_to_restore})
+        # if not args.pretrain:
+        #     exclude = ['pt_softmax/']
+        #     variables_to_restore = tf.contrib.slim.get_variables_to_restore(exclude=exclude)
+        #     tf.train.init_from_checkpoint(args.model_path,
+        #                                   {v.name.split(':')[0]: v for v in variables_to_restore})
             #print(variables_to_restore)
 
         if mode == tf.estimator.ModeKeys.EVAL:
+            accuracy = tf.metrics.accuracy(labels=labels,predictions=predictions,name='acc_op')
+            confusion_matrix = eval_confusion_matrix(labels, predictions, args.num_class)
+            metrics = {'accuracy': accuracy, "confusion_matrix": confusion_matrix}
+            tf.summary.scalar('accuracy', accuracy[1])
             return tf.estimator.EstimatorSpec(
                 mode, loss=loss, eval_metric_ops=metrics)
+
         if mode == tf.estimator.ModeKeys.TRAIN:
            logging_hook = tf.train.LoggingTensorHook({'global_step': self.global_step,
                                                       "lr":self.learning_rate_exp}, every_n_iter=100)
@@ -124,21 +122,30 @@ class Model(object):
             mode=mode, loss=loss, train_op=train_op, training_hooks=[logging_hook])
 
 
-    def softmax_module(self,input,reuse=False):
+    def softmax_module(self,output,hidden,reuse=False):
         if not args.pretrain:
             with tf.variable_scope("ft_softmax", reuse=reuse,regularizer=tf.contrib.layers.l2_regularizer(args.l2)):
-                output=tf.layers.dense(input,args.num_class)
+                logits=tf.layers.dense(hidden,args.num_class)
         else :
             with tf.variable_scope("pt_softmax", reuse=reuse,regularizer=tf.contrib.layers.l2_regularizer(args.l2)):
-                output=tf.layers.dense(input,self.vocab_size)
+                output=tf.reshape(output,[-1,args.hidden_size])
+                logits=tf.layers.dense(output,self.vocab_size)
 
-        logits=tf.nn.softmax(output)
-        predictions=tf.argmax(logits,-1)
+        predictions=tf.argmax(tf.nn.softmax(logits),-1)
         return logits,predictions
 
     def loss_module(self,logits,labels):
         self.global_step = tf.train.get_global_step()
-        loss=tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits))
+        if not args.pretrain:
+            loss=tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits))
+        else:
+            loss = tf.contrib.seq2seq.sequence_loss(
+                logits=tf.reshape(logits, [args.batch_size, args.max_len, self.vocab_size]),
+                targets=labels,
+                weights=tf.ones([args.batch_size, args.max_len]),
+                average_across_timesteps=True,
+                average_across_batch=True,
+            )
         reg_losses = tf.reduce_sum(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
         loss += reg_losses
         self.learning_rate_exp = tf.train.exponential_decay(args.lr, self.global_step,
