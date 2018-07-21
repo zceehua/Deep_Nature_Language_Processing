@@ -24,8 +24,6 @@ class DataLoader(object):
         self.questions=None
         self.answers=None
         self.labels=None
-        self.word2idx={}
-        self.idx2word={}
         self.logger=logger
         #self.load_data()
 
@@ -88,12 +86,7 @@ class DataLoader(object):
         shape=data.shape
         #print(data.ravel()[:10])
         if mode=="train":
-            symbols=["<PAD>","<UNK>"]
-            words=[w  for sent in  data.ravel() for w in sent.split()]
-            words.extend([x for x in self.questions])
-            words=list(set(words))
-            self.word2idx={word:idx for idx,word in enumerate(symbols+words)}
-            self.idx2word={idx:word for idx,word in enumerate(symbols+words)}
+            self.word2idx,self.idx2word=self.load_wordidx()
             index=np.array([[self.word2idx.get(w,self.word2idx["<UNK>"]) for w in sent.split()] for sent in data.ravel()]).reshape(shape)
         else:
             index=np.array([[self.word2idx.get(w, self.word2idx["<UNK>"]) for w in sent.split()] for sent in data.ravel()]).reshape(shape)
@@ -156,14 +149,15 @@ class DataLoader(object):
                 serialized = example.SerializeToString()
                 writer.write(serialized)
 
-    def save_wordidx(self):
-        self.logger.info("saving words index...")
+    def load_wordidx(self):
+        self.logger.info("load words index...")
         if not os.path.exists(args.index_path):
-            os.mkdir(args.index_path)
-        with open(os.path.join(args.index_path,"word2idx.pkl"),"wb") as f1:
-            pickle.dump(self.word2idx,f1)
-        with open(os.path.join(args.index_path,"idx2word.pkl"),"wb") as f2:
-            pickle.dump(self.idx2word, f2)
+            raise ValueError("run train_skip.py to get word2idx first!")
+        with open(os.path.join(args.index_path,"dm_word2idx.pkl"),"rb") as f1:
+            word2idx=pickle.load(f1)
+        with open(os.path.join(args.index_path,"dm_idx2word.pkl"),"rb") as f2:
+            idx2word=pickle.load(f2)
+        return word2idx,idx2word
 
 # loader=DataLoader()
 # loader.load_data()
@@ -175,7 +169,11 @@ class DataLoader(object):
 # print(loader.labels.shape)
 # print(loader.labels[:10])
 
-class dmLoader(object):
+
+#Loading the pretraining LM data
+#x is a sequence of data
+#y is x shifted by one
+class lmLoader(object):
 
     def gen_batch(self,index):
         window=args.batch_size*args.max_len
@@ -193,3 +191,12 @@ class dmLoader(object):
         iterator = dataset.make_one_shot_iterator()
         input, label = iterator.get_next()
         return ({'answer': input, 'question': input}, label)
+
+    def load_gender_LM(self):
+        data=pd.read_csv(args.save_path+"processed.csv")
+        data.fillna("", inplace=True)
+        text=" ".join(data.values[:, 0])
+        with open(args.index_path+"dm_word2idx.pkl",'rb') as f:
+            word2idx=pickle.load(f)
+        index=[word2idx.get(w,word2idx["<UNK>"]) for w in text.split()]
+        return index

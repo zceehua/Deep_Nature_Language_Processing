@@ -1,4 +1,0 @@
-2018-07-20 19:41:37,723 - main.py[line:55] - INFO: load word embedding ...
-2018-07-20 19:41:37,723 - main.py[line:57] - INFO: words index loaded
-2018-07-20 19:42:02,491 - main.py[line:60] - INFO: embedding loaded
-2018-07-20 19:42:02,507 - main.py[line:89] - INFO: start pretraining

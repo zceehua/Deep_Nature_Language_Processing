@@ -2,18 +2,21 @@ import tensorflow as tf
 from config import args
 from tools import eval_confusion_matrix
 import numpy as np
-_no_value = object()
+#_no_value = object()
+
+PRETRAIN_PATH="./model/pretrain"
 
 class Model(object):
-    def __init__(self,logger,vocab_size,embedding=_no_value):
+    def __init__(self,logger,vocab_size,embedding=None):
         self.logger=logger
         self.vocab_size=vocab_size
         self.embedding=embedding
+        self.lr2 = np.array([0.00015, 0.0004, 0.001, 0.002])
 
 
     def get_embedding(self,input,reuse=False):
         with tf.variable_scope("embedding",reuse=reuse):
-            if self.embedding is _no_value:
+            if self.embedding is None:
                 embedding = tf.get_variable("embedding_matrix",[self.vocab_size, args.embedding_size], tf.float32)
             else:
                 embedding = tf.Variable(initial_value=self.embedding,
@@ -86,26 +89,25 @@ class Model(object):
             cnn_ans = self.cnn_module(answer)
             cnn_ques = self.cnn_module(question, reuse=True)
             cnn_output = tf.concat([cnn_ans, cnn_ques], -1)
-            output,hidden=self.lstm_module(cnn_output)
+            rnn_output,hidden=self.lstm_module(cnn_output)
         else:
             raise ValueError('clf should be one of [cnn, lstm, clstm]')
 
-        logits,predictions=self.softmax_module(output,hidden)
-        return logits,predictions
+        logits,predictions=self.softmax_module(rnn_output,hidden)
+        return rnn_output,logits,predictions
 
-    def model_fn(self,features,labels,mode):
-        logits, predictions=self.forward(features,mode)
+    def model_fn(self,features,labels,mode,params):
+        rnn_output,logits, predictions=self.forward(features,mode)
         if mode == tf.estimator.ModeKeys.PREDICT:
             return tf.estimator.EstimatorSpec(mode, predictions=predictions)
 
-        loss, train_op = self.loss_module(logits, labels)
+        loss, train_op = self.loss_module(rnn_output,logits, labels)
 
-        # if not args.pretrain:
-        #     exclude = ['pt_softmax/']
-        #     variables_to_restore = tf.contrib.slim.get_variables_to_restore(exclude=exclude)
-        #     tf.train.init_from_checkpoint(args.model_path,
-        #                                   {v.name.split(':')[0]: v for v in variables_to_restore})
-            #print(variables_to_restore)
+        # if  args.load_model:
+        #     exclude = ['pt_softmax/', 'ft_softmax/']
+        #     self.load_model(exclude=exclude)
+        #     args.load_model=False
+        #     #print(args.load_model)
 
         if mode == tf.estimator.ModeKeys.EVAL:
             accuracy = tf.metrics.accuracy(labels=labels,predictions=predictions,name='acc_op')
@@ -117,51 +119,147 @@ class Model(object):
 
         if mode == tf.estimator.ModeKeys.TRAIN:
            logging_hook = tf.train.LoggingTensorHook({'global_step': self.global_step,
-                                                      "lr":self.learning_rate_exp}, every_n_iter=100)
+                                                      "lr":self.learning_rate_exp,
+                                                      "lr_1":self.lr_var[0],"lr_2":self.lr_var[1],
+                                                      "lr_3": self.lr_var[2],"lr_4":self.lr_var[3]}, every_n_iter=100)
            return tf.estimator.EstimatorSpec(
             mode=mode, loss=loss, train_op=train_op, training_hooks=[logging_hook])
 
 
     def softmax_module(self,output,hidden,reuse=False):
         if not args.pretrain:
+            #do specifiy the name of layer if we want to get kernel of the layer
             with tf.variable_scope("ft_softmax", reuse=reuse,regularizer=tf.contrib.layers.l2_regularizer(args.l2)):
-                logits=tf.layers.dense(hidden,args.num_class)
+                logits=tf.layers.dense(hidden,args.num_class,name="dense")
         else :
             with tf.variable_scope("pt_softmax", reuse=reuse,regularizer=tf.contrib.layers.l2_regularizer(args.l2)):
                 output=tf.reshape(output,[-1,args.hidden_size])
-                logits=tf.layers.dense(output,self.vocab_size)
+                logits=tf.layers.dense(output,self.vocab_size,name="dense")
 
         predictions=tf.argmax(tf.nn.softmax(logits),-1)
         return logits,predictions
 
-    def loss_module(self,logits,labels):
+
+    def sequence_loss(self,logits,labels):
+        loss = tf.contrib.seq2seq.sequence_loss(
+            logits=tf.reshape(logits, [args.batch_size, args.max_len, self.vocab_size]),
+            targets=labels,
+            weights=tf.ones([args.batch_size, args.max_len]),
+            average_across_timesteps=True,
+            average_across_batch=True,
+        )
+        return loss
+
+    #increase training speed when output class is large
+    def sampled_loss(self,logits,labels):
+        #discard <PAD>
+        mask = tf.reshape(tf.to_float(tf.sign(labels)), [-1])
+        with tf.variable_scope('pt_softmax/dense', reuse=True):
+            _weights = tf.transpose(tf.get_variable('kernel'))
+            _biases = tf.get_variable('bias')
+        loss = tf.reduce_sum(mask * tf.nn.sampled_softmax_loss(
+            weights=_weights,
+            biases=_biases,
+            labels=tf.reshape(labels, [-1, 1]),
+            inputs=tf.reshape(logits, [-1, args.hidden_size]),
+            num_sampled=args.num_sampled,
+            num_classes=self.vocab_size,
+        )) / tf.to_float(tf.shape(logits)[0])
+        return loss
+
+    def loss_module(self,rnn_output,logits,labels):
         self.global_step = tf.train.get_global_step()
         if not args.pretrain:
             loss=tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits))
         else:
-            loss = tf.contrib.seq2seq.sequence_loss(
-                logits=tf.reshape(logits, [args.batch_size, args.max_len, self.vocab_size]),
-                targets=labels,
-                weights=tf.ones([args.batch_size, args.max_len]),
-                average_across_timesteps=True,
-                average_across_batch=True,
-            )
+            if args.num_sampled>self.vocab_size:
+                loss=self.sequence_loss(logits,labels)
+            else:
+                loss=self.sampled_loss(rnn_output,labels)
         reg_losses = tf.reduce_sum(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
         loss += reg_losses
+        params = tf.trainable_variables()
         self.learning_rate_exp = tf.train.exponential_decay(args.lr, self.global_step,
                                                             args.decay_size,
                                                             args.decay_factor)
-        params = tf.trainable_variables()
-        optmizer = tf.train.AdamOptimizer(self.learning_rate_exp)
-        gradients = tf.gradients(loss, params)
-        clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_norm=args.grad_clip)
-        gard_op = optmizer.apply_gradients(zip(clipped_gradients, params), global_step=self.global_step)
+        if args.fine_tune:
+            cnn_vars,other_vars,sm_vars=self.get_vars(params)
+            grad_op=self.get_grad_op(cnn_vars,other_vars,sm_vars,loss,params)
+        else:
+            optmizer = tf.train.AdamOptimizer(self.learning_rate_exp)
+            gradients = tf.gradients(loss, params)
+            clipped_gradients, _ = tf.clip_by_global_norm(gradients, clip_norm=args.grad_clip)
+            grad_op = optmizer.apply_gradients(zip(clipped_gradients, params), global_step=self.global_step)
+
         var_avg = tf.train.ExponentialMovingAverage(args.moving_average_decay,self.global_step)
         variables_averages_op = var_avg.apply(params)
-        with tf.control_dependencies([gard_op, variables_averages_op]):
+        with tf.control_dependencies([grad_op, variables_averages_op]):
             train_op = tf.no_op(name='train')
 
         return loss,train_op
+
+    #Discriminative fine-tuning
+    def get_grad_op(self,cnn,other,sm,loss,params):
+        lstm_ops=[]
+        lstm_grads=[]
+        #self.lr2=self.stlr(self.lr2)
+        self.lr_var={}
+        for i in range(len(self.lr2)):
+            self.lr_var[i]=self.stlr(self.lr2[i])
+        cnn_op = tf.train.AdamOptimizer(self.learning_rate_exp)
+        sm_op = tf.train.AdamOptimizer(self.stlr(self.lr_var[3]))
+        for i in range(len(other)):
+            lstm_ops.append(tf.train.AdamOptimizer(self.stlr(self.lr_var[i])))
+        grads = tf.gradients(loss, params)
+        clipped_gradients, _ = tf.clip_by_global_norm(grads, clip_norm=args.grad_clip)
+        grad_cnn=grads[:len(cnn)]
+        offset=len(cnn)
+        for i in range(len(other)):
+            lstm_grads.append(grads[offset:offset+len(other[i])])
+            offset=offset+len(other[i])
+        grad_sm=grads[offset:]
+        cnn_train=cnn_op.apply_gradients(zip(grad_cnn,cnn), global_step=self.global_step)
+        sm_train=sm_op.apply_gradients(zip(grad_sm,sm), global_step=self.global_step)
+        lstm_train=[lstm_ops[i].apply_gradients(zip(lstm_grads[i],other[i]), global_step=self.global_step) for i in range(len(other))]
+        train_op=tf.group(cnn_train,lstm_train[0],lstm_train[1],lstm_train[2],sm_train)
+        return train_op
+
+    #Slanted triangular learning rates
+    def stlr(self,eta_max=0.01):
+        T=args.num_steps*args.n_epochs*args.amount
+        t=tf.to_float(self.global_step + 1)#prevent 0 steps
+        cut_frac=0.1
+        ratio=32
+        cut=tf.to_float(T*cut_frac)
+        f1=lambda :tf.subtract(tf.to_float(1),tf.subtract(t,cut)/(tf.multiply(cut,tf.to_float(1/cut_frac - 1))))
+        f2=lambda :tf.divide(t,cut)
+        p=tf.cond(tf.greater(cut,t),f2,f1)
+        eta_t=tf.multiply(tf.to_float(eta_max),tf.divide(tf.add(tf.to_float(1),tf.multiply(p,tf.to_float(ratio-1))),tf.to_float(ratio)))
+        eta_t=tf.max(tf.to_float(0.00001),eta_t)#prevent negative
+        return eta_t
+
+
+    def get_vars(self,params):
+        cnn_vars = [var for var in params if "cnn_module" in var.name]
+        other_vars = []
+        lstm_layer = "lstm_module/rnn/multi_rnn_cell/cell_"
+        for i in range(args.nlayers):
+            vars = [var for var in params if lstm_layer + str(i) in var.name]
+            other_vars.append(vars)
+        sm_vars = [var for var in params if "pt_softmax" in var.name]
+        #other_vars.append(vars)
+        return cnn_vars,other_vars,sm_vars
+
+    def load_model(self,include=None,exclude=None):
+        self.logger.info("loading pretrained model ..")
+        #exclude = ['pt_softmax/', 'cnn_module_1/embedding/','cnn_module/embedding/','ft_softmax/']
+        variables_to_restore = tf.contrib.slim.get_variables_to_restore(exclude=exclude,include=include)
+        tf.train.init_from_checkpoint(PRETRAIN_PATH,
+                                      {v.name.split(':')[0]: v for v in variables_to_restore})
+        #[<tf.Variable 'global_step:0' shape=() dtype=int64_ref>, <tf.Variable 'cnn_module/conv2d/kernel:0' shape=(3, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/bias:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/kernel:0' shape=(4, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/bias:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/kernel:0' shape=(5, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/bias:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/kernel:0' shape=(896, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/kernel:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/kernel:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'beta1_power:0' shape=() dtype=float32_ref>, <tf.Variable 'beta2_power:0' shape=() dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/kernel/Adam:0' shape=(3, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/kernel/Adam_1:0' shape=(3, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/bias/Adam:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/bias/Adam_1:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/kernel/Adam:0' shape=(4, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/kernel/Adam_1:0' shape=(4, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/bias/Adam:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/bias/Adam_1:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/kernel/Adam:0' shape=(5, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/kernel/Adam_1:0' shape=(5, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/bias/Adam:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/bias/Adam_1:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/kernel/Adam:0' shape=(896, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/kernel/Adam_1:0' shape=(896, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/bias/Adam:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/bias/Adam_1:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/kernel/Adam:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/kernel/Adam_1:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/bias/Adam:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/bias/Adam_1:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/kernel/Adam:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/kernel/Adam_1:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/bias/Adam:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/bias/Adam_1:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/kernel/ExponentialMovingAverage:0' shape=(3, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/bias/ExponentialMovingAverage:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/kernel/ExponentialMovingAverage:0' shape=(4, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/bias/ExponentialMovingAverage:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/kernel/ExponentialMovingAverage:0' shape=(5, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/bias/ExponentialMovingAverage:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/kernel/ExponentialMovingAverage:0' shape=(896, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/bias/ExponentialMovingAverage:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/kernel/ExponentialMovingAverage:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/bias/ExponentialMovingAverage:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/kernel/ExponentialMovingAverage:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/bias/ExponentialMovingAverage:0' shape=(512,) dtype=float32_ref>]
+        #print(variables_to_restore)
+        #[<tf.Variable 'cnn_module/embedding/embedding_matrix:0' shape=(2085, 200) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/kernel:0' shape=(3, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d/bias:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/kernel:0' shape=(4, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_1/bias:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/kernel:0' shape=(5, 200, 1, 128) dtype=float32_ref>, <tf.Variable 'cnn_module/conv2d_2/bias:0' shape=(128,) dtype=float32_ref>, <tf.Variable 'cnn_module_1/embedding/embedding_matrix:0' shape=(2085, 200) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/kernel:0' shape=(896, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_0/lstm_cell/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/kernel:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_1/lstm_cell/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/kernel:0' shape=(256, 512) dtype=float32_ref>, <tf.Variable 'lstm_module/rnn/multi_rnn_cell/cell_2/lstm_cell/bias:0' shape=(512,) dtype=float32_ref>, <tf.Variable 'ft_softmax/dense/kernel:0' shape=(128, 4) dtype=float32_ref>, <tf.Variable 'ft_softmax/dense/bias:0' shape=(4,) dtype=float32_ref>]
+        #print(tf.trainable_variables())
 
     def get_seq_len(self,ans,ques):
         ans_len=tf.count_nonzero(ans,-1)

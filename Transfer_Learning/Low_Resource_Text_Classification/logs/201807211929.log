@@ -1,0 +1,17 @@
+2018-07-21 19:29:47,080 - main.py[line:63] - INFO: words index loaded,vocab size:36191
+2018-07-21 19:29:47,080 - main.py[line:96] - INFO: start open domain pretraining ...
+2018-07-21 19:29:51,755 - tf_logging.py[line:82] - INFO: Using config: {'_save_checkpoints_steps': None, '_keep_checkpoint_max': 1, '_save_checkpoints_secs': 600, '_task_id': 0, '_task_type': 'worker', '_session_config': None, '_keep_checkpoint_every_n_hours': 10000, '_is_chief': True, '_save_summary_steps': 100, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x0000028DE7C7CF98>, '_service': None, '_master': '', '_num_ps_replicas': 0, '_model_dir': 'D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/pretrain', '_tf_random_seed': None, '_log_step_count_steps': 100, '_num_worker_replicas': 1}
+2018-07-21 19:29:51,756 - tf_logging.py[line:90] - WARNING: Estimator's model_fn (<bound method Model.model_fn of <model.model.Model object at 0x0000028DE237D0F0>>) includes params argument, but params are not passed to Estimator.
+2018-07-21 19:29:55,063 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
+2018-07-21 19:30:00,636 - tf_logging.py[line:82] - INFO: Restoring parameters from D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/pretrain\model.ckpt-507
+2018-07-21 19:30:09,880 - tf_logging.py[line:82] - INFO: Saving checkpoints for 512 into D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/pretrain\model.ckpt.
+2018-07-21 19:30:14,824 - tf_logging.py[line:82] - INFO: loss = 965.3192, step = 512
+2018-07-21 19:30:14,824 - tf_logging.py[line:82] - INFO: lr_3 = 0.11249649, global_step = 512, lr_2 = 0.044998594, lr = 0.00048716477, lr_4 = 0.22499298, lr_1 = 0.016874474
+2018-07-21 19:30:19,973 - tf_logging.py[line:82] - INFO: global_step/sec: 20.1915
+2018-07-21 19:30:25,110 - tf_logging.py[line:82] - INFO: global_step/sec: 20.2466
+2018-07-21 19:30:29,879 - tf_logging.py[line:82] - INFO: global_step/sec: 22.0187
+2018-07-21 19:30:34,676 - tf_logging.py[line:82] - INFO: global_step/sec: 21.8898
+2018-07-21 19:30:38,710 - tf_logging.py[line:82] - INFO: loss = 3717.1577, step = 1010 (23.886 sec)
+2018-07-21 19:30:38,710 - tf_logging.py[line:82] - INFO: lr_3 = 0.14825797, global_step = 1010, lr_2 = 0.059303183, lr = 0.0004748782, lr_4 = 0.29651594, lr_1 = 0.022238696 (23.886 sec)
+2018-07-21 19:30:38,936 - tf_logging.py[line:82] - INFO: Saving checkpoints for 1015 into D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/pretrain\model.ckpt.
+2018-07-21 19:30:43,919 - tf_logging.py[line:82] - INFO: Loss for final step: 3600.4172.

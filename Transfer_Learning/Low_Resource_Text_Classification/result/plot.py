@@ -83,10 +83,9 @@ def plot_confusion_matrix(cm, classes,
     #plt.show()
 
 plot_prediction()
-
-#np.set_printoptions(precision=2)
+# np.set_printoptions(precision=2)
 # classnames=["Inequitable","Low_Equitable","Moderately_Equitable","Equitable"]
-# confusion_matrix=np.array([[69 ,12 , 9  ,0],[14 ,77 ,44 , 0],[ 4, 19, 49 , 0],[ 2  ,2 ,19  ,0]])
+# confusion_matrix=np.array([[71 ,11  ,2  ,1],[12 ,87 ,25, 3],[0 ,18 ,36, 12],[0  ,3  ,7 ,12]])
 # plot_confusion_matrix(confusion_matrix,classnames,normalize=True,
 #                       title='Confusion matrix, with normalization',name="confusion_matrix_norm.jpg")
 # plot_confusion_matrix(confusion_matrix,classnames,normalize=False,

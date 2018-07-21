@@ -10,6 +10,7 @@ import numpy as np
 
 #mysterious bugs might occur with tensorflow if not adding full path
 FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/saved_model/"
+PRETRAIN_FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/"
 MODEL_PATH=args.model_path
 RESULT_path=args.result_path
 
@@ -25,7 +26,7 @@ def train(file_name,embedding):
     number_samples=file_name.split("_")[1][:-9]
     model = Model(logger, vocab_size,embedding=embedding)
     classifier = tf.estimator.Estimator(
-        model_fn=model.model_fn, model_dir=FULL_PATH+"model_"+number_samples, config=config)
+        model_fn=model.model_fn,model_dir="C:\\Users\\zt136\\AppData\Local\\Temp\\model_"+number_samples, config=config)
     for _ in range(args.n_epochs):
         classifier.train(lambda :recordLoader.train_input(file_name))
     logger.info("evaluating model on {} data samples....".format(number_samples))
@@ -41,9 +42,9 @@ def train(file_name,embedding):
 def pre_train(input,embedding):
     model = Model(logger, vocab_size, embedding=embedding)
     classifier = tf.estimator.Estimator(
-        model_fn=model.model_fn, model_dir=MODEL_PATH + "model_pretrain", config=config)
+        model_fn=model.model_fn, model_dir=PRETRAIN_FULL_PATH + "pretrain", config=config)
     for _ in range(args.n_epochs):
-        classifier.train(lambda :dmloader.input_fn(input))
+        classifier.train(lambda :lmloader.input_fn(input),steps=args.num_steps)
 
 if __name__ == '__main__':
     logger = createLogger()
@@ -52,20 +53,23 @@ if __name__ == '__main__':
     if not os.path.exists("./data/processed_data"):
         logger.info("preprocessing data...")
         loader.load_data()
-    if not os.path.exists(args.index_path):
-        loader.save_wordidx()
+
     if not os.path.exists(MODEL_PATH):
         os.mkdir(MODEL_PATH)
 
-    if not args.pretrain:
-        word2idx, idx2word = load_index(args.index_path)
-        logger.info("words index loaded")
+    word2idx, idx2word = load_index(args.index_path)
+    vocab_size = word2idx.__len__()
+
+    logger.info("words index loaded,vocab size:{}".format(vocab_size))
+    if args.allow_emb:
         embedding = load_embeddings("./embedding/glove.6B.200d.txt",
                                     word2idx, args.embedding_size, init=np.random.uniform)
         logger.info("word embedding loaded")
-        recordLoader = RecordLoader()
-        vocab_size = word2idx.__len__()
+    else:
+        embedding = None
 
+    if not args.pretrain:
+        recordLoader = RecordLoader()
         train_files = [x for x in os.listdir(args.save_path) if "train" in x]
 
         if not os.path.exists(RESULT_path):
@@ -73,33 +77,33 @@ if __name__ == '__main__':
 
         if os.path.exists(MODEL_PATH):
             remove_model(MODEL_PATH)
-        with open(RESULT_path + "result_pre_emb.txt", 'w') as f:
+
+        with open(RESULT_path + "result_with_emb_with_pretrain.txt", 'w') as f:
             f.write("Val_acc\t\tNumber_of_training_data\n")
-            for file_name in train_files:
-                train(file_name,embedding)
+            for i in range(len(train_files)):
+                args.load_model = True
+                train(train_files[i],embedding)
     else:
-        #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         DATA_DIR = "F:/360Downloads/dailymail_stories/dailymail/stories/"
         PARAMS = {
             'min_freq': 5,
-            'percent': 0.001
+            'percent': 0.01,
+            "word2idx":word2idx
         }
-        dmloader=dmLoader()
-
-        if os.path.exists("./embedding/dm_word2idx.pkl"):
-            PARAMS["word2idx"], PARAMS["idx2word"] = load_index("./embedding/dm_")
-            vocab_size=len(PARAMS["word2idx"])
-            embedding = load_embeddings("./embedding/glove.6B.200d.txt",
-                                        PARAMS["word2idx"], args.embedding_size, init=np.random.uniform)
-            logger.info("word embedding loaded")
-        else:
-            raise ValueError("please run train_skip.py to generate word2idx first")
-
-        for i in range(2):
+        lmloader=lmLoader()
+        args.fine_tune = True
+        #open domain pretrain
+        logger.info("start open domain pretraining ...")
+        args.amount=1
+        for i in range(args.amount):
             index = preprocess_dailymail(i, DATA_DIR, PARAMS)
-            # input,label=dmloader.input_fn(index)
-            # sess.run(tf.global_variables_initializer())
-            # x,y=sess.run([input,label])
-            # print(x["answer"].shape)#(50,80)
-            # print(y.shape)#(50,80)
             pre_train(index,embedding)
+
+        #in domain pretrain:
+        logger.info("start in domain pretraining ...")
+        args.fine_tune=True
+        index=lmloader.load_gender_LM()
+        pre_train(index, embedding)
+        # index = lmloader.load_gender_LM()
+        # print(index)
+        # print(np.array(index).shape)

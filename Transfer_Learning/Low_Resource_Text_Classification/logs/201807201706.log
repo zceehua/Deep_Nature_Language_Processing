@@ -1,5 +1,0 @@
-2018-07-20 17:06:04,190 - main.py[line:50] - INFO: words index loaded
-2018-07-20 17:06:04,191 - main.py[line:51] - INFO: load word embedding ...
-2018-07-20 17:06:29,314 - main.py[line:55] - INFO: embedding loaded
-2018-07-20 17:06:29,319 - tf_logging.py[line:82] - INFO: Using config: {'_keep_checkpoint_max': 1, '_keep_checkpoint_every_n_hours': 10000, '_save_summary_steps': 100, '_is_chief': True, '_tf_random_seed': None, '_master': '', '_service': None, '_model_dir': './model/saved_model/model_1000', '_save_checkpoints_steps': None, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x00000169BE6BD7B8>, '_task_id': 0, '_num_ps_replicas': 0, '_num_worker_replicas': 1, '_save_checkpoints_secs': 600, '_log_step_count_steps': 100, '_session_config': None, '_task_type': 'worker'}
-2018-07-20 17:06:32,132 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.

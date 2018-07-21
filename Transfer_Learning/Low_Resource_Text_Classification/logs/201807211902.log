@@ -1,0 +1,5 @@
+2018-07-21 19:02:30,453 - main.py[line:63] - INFO: words index loaded,vocab size:36191
+2018-07-21 19:03:01,645 - main.py[line:67] - INFO: word embedding loaded
+2018-07-21 19:03:01,645 - main.py[line:96] - INFO: start open domain pretraining ...
+2018-07-21 19:03:04,289 - tf_logging.py[line:82] - INFO: Using config: {'_save_checkpoints_secs': 600, '_save_summary_steps': 100, '_session_config': None, '_tf_random_seed': None, '_log_step_count_steps': 100, '_num_worker_replicas': 1, '_save_checkpoints_steps': None, '_service': None, '_is_chief': True, '_task_type': 'worker', '_num_ps_replicas': 0, '_keep_checkpoint_every_n_hours': 10000, '_master': '', '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x000001CE84B620F0>, '_keep_checkpoint_max': 1, '_model_dir': 'D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/pretrain', '_task_id': 0}
+2018-07-21 19:03:04,290 - tf_logging.py[line:90] - WARNING: Estimator's model_fn (<bound method Model.model_fn of <model.model.Model object at 0x000001CECE26C0F0>>) includes params argument, but params are not passed to Estimator.

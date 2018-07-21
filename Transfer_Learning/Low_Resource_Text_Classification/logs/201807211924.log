@@ -1,0 +1,3 @@
+2018-07-21 19:24:37,943 - main.py[line:63] - INFO: words index loaded,vocab size:36191
+2018-07-21 19:25:22,362 - main.py[line:67] - INFO: word embedding loaded
+2018-07-21 19:25:22,362 - main.py[line:96] - INFO: start open domain pretraining ...

@@ -1,6 +1,0 @@
-2018-06-27 21:16:29,929 - main.py[line:47] - INFO: words index loaded...
-2018-06-27 21:16:30,008 - tf_logging.py[line:82] - INFO: Using config: {'_model_dir': './model/saved_model/model_1000', '_master': '', '_keep_checkpoint_every_n_hours': 10000, '_log_step_count_steps': 100, '_is_chief': True, '_save_summary_steps': 100, '_num_ps_replicas': 0, '_task_id': 0, '_tf_random_seed': None, '_task_type': 'worker', '_save_checkpoints_secs': 600, '_num_worker_replicas': 1, '_save_checkpoints_steps': None, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x000001B283B17400>, '_service': None, '_keep_checkpoint_max': 1, '_session_config': None}
-2018-06-27 21:16:32,555 - tf_logging.py[line:82] - INFO: Create CheckpointSaverHook.
-2018-06-27 21:16:43,346 - tf_logging.py[line:82] - INFO: Saving checkpoints for 1 into ./model/saved_model/model_1000\model.ckpt.
-2018-06-27 21:16:45,528 - tf_logging.py[line:82] - INFO: loss = 1.3864944, step = 1
-2018-06-27 21:16:45,529 - tf_logging.py[line:82] - INFO: lr = 0.0005, global_step = 1
