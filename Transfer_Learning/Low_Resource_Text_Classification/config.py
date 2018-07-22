@@ -3,7 +3,7 @@ import argparse
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--train_split', type=int, default=1000,help='train file split')
-parser.add_argument('--num_steps', type=int, default=1000,help='estimator train steps per epoch')
+parser.add_argument('--num_steps', type=int, default=10000,help='estimator train steps per epoch')
 parser.add_argument('--num_sampled', type=int, default=2000,help='The number of classes to randomly sample per batch')
 parser.add_argument('--pretrain', type=bool, default=True,help='pretraining the model by using LM')
 parser.add_argument('--allow_emb', type=bool, default=True,help='load embedding')
@@ -26,7 +26,7 @@ parser.add_argument('--embedding_size', type=int, default=200 , help='embedding 
 parser.add_argument('--nlayers', type=int, default=3,help='number of layers')
 parser.add_argument('--decay_factor', type=float, default=0.95)
 parser.add_argument('--lr', type=float, default=0.0005)
-parser.add_argument('--decay_size', type=float, default=1000)
+parser.add_argument('--decay_size', type=float, default=3000)
 parser.add_argument('--grad_clip', type=float, default=5.0)
 parser.add_argument('--moving_average_decay', type=float, default=0.99)
 parser.add_argument('--n_epochs', type=int, default=5,help='upper epoch limit')

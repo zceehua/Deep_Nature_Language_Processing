@@ -1,0 +1,6 @@
+2018-07-21 23:00:02,943 - main.py[line:63] - INFO: words index loaded,vocab size:36191
+2018-07-21 23:00:38,319 - main.py[line:67] - INFO: word embedding loaded
+2018-07-21 23:00:38,319 - main.py[line:104] - INFO: start in domain pretraining ...
+2018-07-21 23:00:39,052 - tf_logging.py[line:82] - INFO: Using config: {'_master': '', '_service': None, '_keep_checkpoint_max': 1, '_num_worker_replicas': 1, '_model_dir': 'D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/pretrain', '_log_step_count_steps': 100, '_keep_checkpoint_every_n_hours': 10000, '_save_checkpoints_steps': None, '_task_id': 0, '_session_config': None, '_is_chief': True, '_cluster_spec': <tensorflow.python.training.server_lib.ClusterSpec object at 0x000002DC9A238DA0>, '_save_checkpoints_secs': 600, '_save_summary_steps': 100, '_task_type': 'worker', '_tf_random_seed': None, '_num_ps_replicas': 0}
+2018-07-21 23:00:39,053 - tf_logging.py[line:90] - WARNING: Estimator's model_fn (<bound method Model.model_fn of <model.model.Model object at 0x000002DC99D82240>>) includes params argument, but params are not passed to Estimator.
+2018-07-21 23:00:42,559 - model.py[line:258] - INFO: loading pretrained model ..

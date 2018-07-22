@@ -52,9 +52,7 @@ class Model(object):
                 elif args.clf=="clstm":
                     conv_out=tf.squeeze(conv_out,[2])
                     conv_out=conv_out[:,:max_feat_len,:]
-
                     output.append(conv_out)
-
             if len(filter_sizes)>1:
                 cnn_out=tf.concat(output,-1)
             else:
@@ -103,11 +101,12 @@ class Model(object):
 
         loss, train_op = self.loss_module(rnn_output,logits, labels)
 
-        # if  args.load_model:
-        #     exclude = ['pt_softmax/', 'ft_softmax/']
-        #     self.load_model(exclude=exclude)
-        #     args.load_model=False
-        #     #print(args.load_model)
+        if  args.load_model:
+            exclude = ['ft_softmax/',"global_step"]
+            self.load_model(exclude=exclude)
+            #self.load_model(include=["pt_softmax/"])
+            args.load_model=False
+            #print(args.load_model)
 
         if mode == tf.estimator.ModeKeys.EVAL:
             accuracy = tf.metrics.accuracy(labels=labels,predictions=predictions,name='acc_op')
@@ -118,10 +117,15 @@ class Model(object):
                 mode, loss=loss, eval_metric_ops=metrics)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-           logging_hook = tf.train.LoggingTensorHook({'global_step': self.global_step,
-                                                      "lr":self.learning_rate_exp,
-                                                      "lr_1":self.lr_var[0],"lr_2":self.lr_var[1],
-                                                      "lr_3": self.lr_var[2],"lr_4":self.lr_var[3]}, every_n_iter=100)
+           if args.fine_tune:
+               logging_hook = tf.train.LoggingTensorHook({'global_step': self.global_step,
+                                                          "lr":self.learning_rate_exp,
+                                                          "lr_1":self.lr_var[0],"lr_2":self.lr_var[1],
+                                                          "lr_3": self.lr_var[2],"lr_4":self.lr_var[3]}, every_n_iter=100)
+           else:
+               logging_hook = tf.train.LoggingTensorHook({'global_step': self.global_step,
+                                                          "lr": self.learning_rate_exp},
+                                                         every_n_iter=100)
            return tf.estimator.EstimatorSpec(
             mode=mode, loss=loss, train_op=train_op, training_hooks=[logging_hook])
 
@@ -235,7 +239,7 @@ class Model(object):
         f2=lambda :tf.divide(t,cut)
         p=tf.cond(tf.greater(cut,t),f2,f1)
         eta_t=tf.multiply(tf.to_float(eta_max),tf.divide(tf.add(tf.to_float(1),tf.multiply(p,tf.to_float(ratio-1))),tf.to_float(ratio)))
-        eta_t=tf.max(tf.to_float(0.00001),eta_t)#prevent negative
+        eta_t=tf.maximum(tf.to_float(0.000001),eta_t)#prevent negative
         return eta_t
 
 
