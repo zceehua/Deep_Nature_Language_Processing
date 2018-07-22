@@ -67,7 +67,8 @@ if __name__ == '__main__':
         logger.info("word embedding loaded")
     else:
         embedding = None
-
+    args.load_model=False
+    args.fine_tune = False
     if not args.pretrain:
         recordLoader = RecordLoader()
         train_files = [x for x in os.listdir(args.save_path) if "train" in x]
@@ -92,16 +93,15 @@ if __name__ == '__main__':
         }
         lmloader=lmLoader()
         args.fine_tune = True
+        args.amount = 1
         #open domain pretrain
-        logger.info("start open domain pretraining ...")
-        args.amount=1
-        for i in range(args.amount):
-            index = preprocess_dailymail(i, DATA_DIR, PARAMS)
-            pre_train(index,embedding)
+        # logger.info("start open domain pretraining ...")
+        # for i in range(args.amount):
+        #     index = preprocess_dailymail(i, DATA_DIR, PARAMS)
+        #     pre_train(index,embedding)
 
         #in domain pretrain:
         logger.info("start in domain pretraining ...")
-        args.fine_tune=True
         index=lmloader.load_gender_LM()
         pre_train(index, embedding)
         # index = lmloader.load_gender_LM()
