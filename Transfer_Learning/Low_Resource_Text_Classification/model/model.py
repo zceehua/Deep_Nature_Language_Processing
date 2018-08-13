@@ -164,7 +164,7 @@ class Model(object):
         loss = tf.reduce_sum(mask * tf.nn.sampled_softmax_loss(
             weights=_weights,
             biases=_biases,
-            labels=tf.reshape(labels, [-1, 1]),
+            labels=tf.reshape(labels, [-1, 1]),#[batch_size, num_true]
             inputs=tf.reshape(logits, [-1, args.hidden_size]),
             num_sampled=args.num_sampled,
             num_classes=self.vocab_size,
@@ -245,12 +245,12 @@ class Model(object):
 
     def get_vars(self,params):
         cnn_vars = [var for var in params if "cnn_module" in var.name]
-        other_vars = []
+        other_vars = []#trainable parameters for lstm layers
         lstm_layer = "lstm_module/rnn/multi_rnn_cell/cell_"
         for i in range(args.nlayers):
             vars = [var for var in params if lstm_layer + str(i) in var.name]
             other_vars.append(vars)
-        sm_vars = [var for var in params if "pt_softmax" in var.name]
+        sm_vars = [var for var in params if "pt_softmax" in var.name]#trainable parameters for softmax layers
         #other_vars.append(vars)
         return cnn_vars,other_vars,sm_vars
 

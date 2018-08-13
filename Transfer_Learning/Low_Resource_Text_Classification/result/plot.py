@@ -26,28 +26,34 @@ def predict(nums,acc,pred_nums):
     regr = LinearRegression()
     regr.fit(nums.reshape((-1, 1)), acc)
     pred_acc = regr.predict(pred_nums.reshape((-1, 1)))
-    return pred_acc
+    return pred_acc,regr.coef_,regr.intercept_
 
 def plot_prediction():
-    acc_no_pre_emb,nums_no_pre_emb=load_result("result_no_pre_emb.txt")
-    acc_with_pre_emb,nums_with_pre_emb=load_result("result_with_pre_emb.txt")
-    plt.plot(nums_no_pre_emb,acc_no_pre_emb)
-    plt.plot(nums_with_pre_emb,acc_with_pre_emb)
-    plt.xlabel("Number of training data")
-    plt.ylabel('Valiation Accuracy')
-    plt.legend(["no_pre_emd","with_pre_emb"])
-    plt.savefig("result.jpg")
-    plt.figure()
+    acc_with_pre_emb,nums_with_pre_emb=load_result("result_with_emb_with_pretrain.txt")
+
+    #acc_with_pre_emb,nums_with_pre_emb=load_result("result_with_pre_emb.txt")
+
+    #plt.plot(nums_with_pre_emb,acc_with_pre_emb)
+    # plt.xlabel("Number of training data")
+    # plt.ylabel('Valiation Accuracy')
+    # plt.legend(["no_pre_emd","with_pre_emb"])
+    # plt.savefig("result.jpg")
+    # plt.figure()
     pred_nums = np.array([7000, 8000, 9000, 10000])
-    pred_acc=predict(nums_no_pre_emb,acc_no_pre_emb,pred_nums)
-    plt.plot(np.concatenate((nums_no_pre_emb,pred_nums)), np.concatenate((acc_no_pre_emb,pred_acc)))
-    pred_acc = predict(nums_with_pre_emb, acc_with_pre_emb, pred_nums)
-    plt.plot(np.concatenate((nums_with_pre_emb, pred_nums)), np.concatenate((acc_with_pre_emb, pred_acc)))
+    #pred_acc=predict(nums_no_pre_emb,acc_no_pre_emb,pred_nums)
+    #plt.plot(np.concatenate((nums_no_pre_emb,pred_nums)), np.concatenate((acc_no_pre_emb,pred_acc)))
+    pred_acc,coef, intercept= predict(nums_with_pre_emb, acc_with_pre_emb, pred_nums)
+    #plt.plot(np.concatenate((nums_with_pre_emb, pred_nums)), np.concatenate((acc_with_pre_emb, pred_acc)))
+    plt.scatter(nums_with_pre_emb, acc_with_pre_emb)
+    nums_no_pre_emb = list(nums_with_pre_emb)
+    nums_no_pre_emb.extend([7000, 8000, 9000])
+    nums_no_pre_emb = np.array(nums_no_pre_emb, dtype=np.float32)
+    plt.plot(nums_no_pre_emb, (intercept + coef* nums_no_pre_emb))
     plt.xlabel("Number of training data")
     plt.ylabel('Valiation Accuracy')
-    plt.legend(["no_pre_emd","with_pre_emb"])
+    #plt.legend(["no_pre_emd","with_pre_emb"])
     plt.savefig("prediction.jpg")
-    #plt.show()
+    plt.show()
 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,

@@ -9,8 +9,8 @@ from model.model import Model
 import numpy as np
 
 #mysterious bugs might occur with tensorflow if not adding full path
-FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/saved_model/"
-PRETRAIN_FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/"
+#FULL_PATH="D:/PycharmWorkSpace/Gits/Deep_Nature_Language_Processing/Transfer_Learning/Low_Resource_Text_Classification/model/saved_model/"
+PRETRAIN_PATH="./model/"
 MODEL_PATH=args.model_path
 RESULT_path=args.result_path
 
@@ -26,7 +26,7 @@ def train(file_name,embedding):
     number_samples=file_name.split("_")[1][:-9]
     model = Model(logger, vocab_size,embedding=embedding)
     classifier = tf.estimator.Estimator(
-        model_fn=model.model_fn,model_dir="C:\\Users\\zt136\\AppData\Local\\Temp\\model_"+number_samples, config=config)
+        model_fn=model.model_fn,model_dir=MODEL_PATH+"model_"+number_samples, config=config)
     for _ in range(args.n_epochs):
         classifier.train(lambda :recordLoader.train_input(file_name))
     logger.info("evaluating model on {} data samples....".format(number_samples))
@@ -42,7 +42,7 @@ def train(file_name,embedding):
 def pre_train(input,embedding):
     model = Model(logger, vocab_size, embedding=embedding)
     classifier = tf.estimator.Estimator(
-        model_fn=model.model_fn, model_dir=PRETRAIN_FULL_PATH + "pretrain", config=config)
+        model_fn=model.model_fn, model_dir=PRETRAIN_PATH + "pretrain", config=config)
     for _ in range(args.n_epochs):
         classifier.train(lambda :lmloader.input_fn(input),steps=args.num_steps)
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
                 args.load_model = True
                 train(train_files[i],embedding)
     else:
-        DATA_DIR = "F:/360Downloads/dailymail_stories/dailymail/stories/"
+        DATA_DIR = "./embedding/dailymail/stories/"
         PARAMS = {
             'min_freq': 5,
             'percent': 0.01,
@@ -95,10 +95,10 @@ if __name__ == '__main__':
         args.fine_tune = True
         args.amount = 1
         #open domain pretrain
-        # logger.info("start open domain pretraining ...")
-        # for i in range(args.amount):
-        #     index = preprocess_dailymail(i, DATA_DIR, PARAMS)
-        #     pre_train(index,embedding)
+        logger.info("start open domain pretraining ...")
+        for i in range(args.amount):
+            index = preprocess_dailymail(i, DATA_DIR, PARAMS)
+            pre_train(index,embedding)
 
         #in domain pretrain:
         logger.info("start in domain pretraining ...")
