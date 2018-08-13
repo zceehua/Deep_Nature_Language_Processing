@@ -12,7 +12,7 @@ and slanted triangular learning rates described in [Universal Language Model Fin
 * nltk
 
 
-**HOW TO RUN**  
+**HOW TO RUN**
 **1. pre train word embedding(optional):**
   ```
   python train_skip.py
