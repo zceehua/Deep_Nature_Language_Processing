@@ -1,0 +1,32 @@
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--embeddings',type=str,
+                    default="D:\PycharmWorkSpace\My_Project\Deep_Nature_Language\Sequence_Labelling\\Neural_Architectures_Named_Entity_Recognition\glove.6B.100d.txt")
+parser.add_argument('--train_file', type=str,default="./data/snli_1.0_train.txt")
+parser.add_argument('--val_file',type=str,default="./data/snli_1.0_dev.txt")
+parser.add_argument('--test_file',type=str,default="./data/snli_1.0_test.txt")
+parser.add_argument('--save_path', type=str,default="./saved")
+parser.add_argument('--cell', type=str,choices=['lstm', 'mlp'])
+parser.add_argument('--vocab', help='Vocabulary file (only needed if numpy''embedding file is given)')
+parser.add_argument('--num_epochs', default=10, type=int,help='Number of epochs')
+parser.add_argument('--batch_size', default=32, help='Batch size',type=int)
+parser.add_argument('--max_len', default=85, help='max sentence len',type=int)
+parser.add_argument('--num_units', help='Number of hidden units',default=100, type=int)
+parser.add_argument('--proj', type=bool,default=True)
+parser.add_argument('--dropout', help='Dropout keep probability',default=0.1, type=float)
+parser.add_argument('--lang', choices=['en', 'pt'], default='en',help='Language (default en; only affects tokenizer)')
+parser.add_argument('--lower', help='Lowercase the corpus (use it if the ''embedding model is lowercased)',action='store_true')
+parser.add_argument('--use-intra', help='Use intra-sentence attention',action='store_true', dest='use_intra')
+parser.add_argument('--l2', help='L2 normalization constant', type=float, default=0.0001)
+parser.add_argument('--report', help='Number of batches between performance reports',default=100, type=int)
+parser.add_argument('--verbose', action='store_true',dest='verbose')
+parser.add_argument('--optim', help='Optimizer algorithm',default='adagrad',choices=['adagrad', 'adadelta', 'adam'])
+parser.add_argument('--decay_factor', type=float, default=0.99)
+parser.add_argument('--lr', type=float, default=0.0001)
+parser.add_argument('--decay_size', type=float, default=1000)
+parser.add_argument('--grad_clip', type=float, default=5.0)
+parser.add_argument('--moving_average_decay', type=float, default=0.99)
+
+args = parser.parse_args()
