@@ -17,6 +17,8 @@ min_apperance=3
 counter=Counter()
 lemmatizer =WordNetLemmatizer()
 
+INDEX_PATH="./index/"
+
 for idx,value in enumerate(specials):
     word2idx[value]=idx
     idx2word[idx]=value
@@ -70,10 +72,12 @@ def preprocess(string):
     return string
 
 def save_index(file):
+    if not os.path.exists(INDEX_PATH):
+        os.mkdir(INDEX_PATH)
     name=file[-2:]
-    w2i = open("word2idx_{}.pkl".format(name), 'wb')
-    i2w = open("idx2word_{}.pkl".format(name), 'wb')
-    count=open("count_{}.pkl".format(name), 'wb')
+    w2i = open(INDEX_PATH+"word2idx_{}.pkl".format(name), 'wb')
+    i2w = open(INDEX_PATH+"idx2word_{}.pkl".format(name), 'wb')
+    count=open(INDEX_PATH+"count_{}.pkl".format(name), 'wb')
     pickle.dump(word2idx, w2i)
     pickle.dump(idx2word, i2w)
     pickle.dump(counter, count)

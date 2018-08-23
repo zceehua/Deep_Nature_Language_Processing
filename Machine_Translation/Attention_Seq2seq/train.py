@@ -11,6 +11,7 @@ import argparse
 block_size=700000
 en_train="./encoder_train"
 de_train="./decoder_train"
+INDEX_PATH="./index/"
 
 en_files=sorted(os.listdir(en_train))
 de_files=sorted(os.listdir(de_train))
@@ -27,10 +28,10 @@ de_files=sorted(os.listdir(de_train))
 #     return en_input,de_input
 
 def load_idx():
-    w2i_en = open("word2idx_en.pkl", 'rb')
-    w2i_zh = open("word2idx_zh.pkl", 'rb')
-    i2w_en = open("idx2word_en.pkl", 'rb')
-    i2w_zh = open("idx2word_zh.pkl", 'rb')
+    w2i_en = open(INDEX_PATH+"word2idx_en.pkl", 'rb')
+    w2i_zh = open(INDEX_PATH+"word2idx_zh.pkl", 'rb')
+    i2w_en = open(INDEX_PATH+"idx2word_en.pkl", 'rb')
+    i2w_zh = open(INDEX_PATH+"idx2word_zh.pkl", 'rb')
     #counter_en=open("count_en.pkl",'rb')
     #counter_zh=open("count_zh.pkl",'rb')
     X_word2idx=pickle.load(w2i_en)
