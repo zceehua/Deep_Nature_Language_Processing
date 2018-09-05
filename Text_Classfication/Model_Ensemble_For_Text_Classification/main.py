@@ -117,6 +117,7 @@ if __name__ == '__main__':
         classfiers = [rf,et,gb, lg]
         train_stack, test_stack = [], []
 
+        #1st level stacking
         for model in classfiers:
             if optimize:
                 # please config you params if you want to optimize any model,for exmaple:
@@ -143,6 +144,7 @@ if __name__ == '__main__':
         ens_train = np.concatenate(train_stack, axis=1)
         ens_test = np.concatenate(test_stack, axis=1)
 
+        #2nd level
         gbm = xgb.XGBClassifier(
             # learning_rate = 0.02,
             n_estimators=300,

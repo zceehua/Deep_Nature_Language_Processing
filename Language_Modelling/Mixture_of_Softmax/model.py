@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from config import args
-from rnn_cell_impl import LSTMCell
+from ModifiedLSTM import ModifiedLSTM
 
 class MOS(object):
     def __init__(self,vocab_size=None):
@@ -42,7 +42,7 @@ class MOS(object):
         self.input_embedding=tf.nn.embedding_lookup(self.embedding,self.input)#(B,T,300)
 
     def lstm_cell(self,size):
-        return LSTMCell(size,initializer=tf.orthogonal_initializer())
+        return ModifiedLSTM(size,initializer=tf.orthogonal_initializer())
 
     def add_forward(self):
         cells=[self.lstm_cell(args.nhid if i!=args.nlayers-1 else args.nhidlast) for i in range(args.nlayers)]

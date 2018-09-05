@@ -11,8 +11,7 @@ if __name__ == '__main__':
         args.nhidlast = args.emsize
     if args.dropoutl < 0:
         args.dropoutl = args.dropouth
-    if args.small_batch_size < 0:
-        args.small_batch_size = args.batch_size
+
 
     data=Corpus(args.data)
     vocab_size=len(data.dictionary)
